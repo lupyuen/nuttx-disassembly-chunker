@@ -27,17 +27,21 @@ use std::io::{BufReader, BufRead, Error, Write};
 /// Byte Size of a Single Chunk. Must be 0x1000 or 0x10_000 or 0x100_000...
 const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks, roughly 4K Lines per file
 
-/// Where the Disassembly Files are located
-const PATHNAME: &str = "/Users/Luppy/riscv/nuttx-tinyemu/docs/purescript";
-
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
+
+    // Files are located here
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 { println!("nuttx-disassembly-chunker <pathname> <basename>\ne.g. nuttx-disassembly-chunker $HOME qjs\nWill chunk $HOME/qjs.S into $HOME/qjs-chunk/qjs-*.S"); return Ok(()); }
+    let pathname = &args[1];
+    let basename = &args[2];
+    println!("pathname={}, basename={}", pathname, basename);
 
     // Buffer for saving Disassembly File Chunk
     let mut chunk_buf = String::new();
 
     // Open the NuttX Disassembly File
-    let path = format!("{}/qjs.S", PATHNAME);
+    let path = format!("{}/{}.S", pathname, basename);
     let input = File::open(path)?;
     let buffered = BufReader::new(input);
 
@@ -47,6 +51,7 @@ fn main() -> Result<(), Error> {
     let mut first_chunk: Option<u64> = None;
     let mut last_chunk: Option<u64> = None;
     for line in buffered.lines() {
+
         linenum += 1;
         // if linenum > 15_000 { break; }
         let line = line?;
@@ -68,7 +73,7 @@ fn main() -> Result<(), Error> {
 
                 // Write the Chunk Buffer to the Chunk File
                 if chunk != last_chunk.unwrap() {
-                    write_chunk_file(&chunk_buf, last_chunk.unwrap(), first_chunk.unwrap());
+                    write_chunk_file(pathname, basename, &chunk_buf, last_chunk.unwrap(), first_chunk.unwrap());
                     chunk_buf.clear();
                 }
                 last_chunk = Some(chunk);
@@ -84,7 +89,7 @@ fn main() -> Result<(), Error> {
 
     // Write the final Chunk Buffer to the Chunk File
     if let Some(chunk) = last_chunk {
-        write_chunk_file(&chunk_buf, chunk, first_chunk.unwrap());
+        write_chunk_file(pathname, basename, &chunk_buf, chunk, first_chunk.unwrap());
         chunk_buf.clear();
     }
 
@@ -93,9 +98,9 @@ fn main() -> Result<(), Error> {
 
 /// Write a Disassembly Chunk to a Chunk File.
 /// Address 0x8000b000 goes into `qjs-chunk/qjs-8000b000.S`
-fn write_chunk_file(buf: &str, chunk: u64, first_chunk: u64) {
+fn write_chunk_file(pathname: &str, basename: &str, buf: &str, chunk: u64, first_chunk: u64) {
     let addr = (first_chunk + chunk + 1) * CHUNK_SIZE;
-    let path = format!("{}/qjs-chunk/qjs-{:0>8x}.S", PATHNAME, addr);
+    let path = format!("{}/{}-chunk/{}-{:0>8x}.S", pathname, basename, basename, addr);
     println!("write_chunk_file: chunk={}, path={}", chunk, path);
     let mut output = File::create(path).unwrap();
     write!(output, "{}", buf).unwrap();
