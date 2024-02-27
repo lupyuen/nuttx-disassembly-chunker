@@ -18,11 +18,14 @@ use std::io::{BufReader, BufRead, Error};
 //     80007028:	1141                	addi	sp,sp,-16
 
 fn main() -> Result<(), Error> {
+
+    // Open the NuttX Disassembly File
     let input = File::open("/Users/Luppy/riscv/nuttx-tinyemu/docs/purescript/qjs.S")?;
     let buffered = BufReader::new(input);
 
-    let mut count = 0;    
+    // Find lines that begin with `    80007028:`
     let re = regex::Regex::new("    ([0-9a-f]+):").unwrap();
+    let mut count = 0;
     for line in buffered.lines() {
         println!("{}", line?);
 
