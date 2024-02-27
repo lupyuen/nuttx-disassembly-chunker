@@ -30,6 +30,9 @@ const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
 
+    // Buffer for saving Disassembly File Chunk
+    let mut chunk_buf = String::new();
+
     // Open the NuttX Disassembly File
     let input = File::open("/Users/Luppy/riscv/nuttx-tinyemu/docs/purescript/qjs.S")?;
     let buffered = BufReader::new(input);
@@ -51,13 +54,27 @@ fn main() -> Result<(), Error> {
             if let Some(addr) = cap.get(1) {
                 let addr = u64::from_str_radix(addr.as_str(), 16).unwrap();
                 let chunk = addr / CHUNK_SIZE;
-                if first_chunk.is_none() { first_chunk = Some(chunk); }
+                if first_chunk.is_none() {
+                    first_chunk = Some(chunk); 
+                    last_chunk = first_chunk;
+                }
                 let chunk = chunk - first_chunk.unwrap();
-
                 println!("chunk={}, addr={:x}", chunk, addr);
+
+                // Write the Chunk Buffer to the Chunk File
+                if chunk != last_chunk.unwrap() {
+                    // TODO
+                    println!("last_chunk={}, chunk_buf={}", last_chunk.unwrap(), chunk_buf);
+                    chunk_buf.clear();
+                }
                 last_chunk = Some(chunk);
             }
         }    
+
+        // Append the line to the Chunk Buffer
+        if first_chunk.is_some() {
+            chunk_buf += &(line + "\n");
+        }
     }
 
     Ok(())
