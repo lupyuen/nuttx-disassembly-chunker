@@ -32,6 +32,7 @@ fn main() -> Result<(), Error> {
         let line = line?;
         println!("{}", line);
 
+        // `addr` becomes `80007028`
         if let Some(cap) = re.captures_iter(&line).next() {
             if let Some(addr) = cap.get(1) {
                 let addr = addr.as_str();
