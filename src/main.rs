@@ -25,7 +25,7 @@ use std::fs::File;
 use std::io::{BufReader, BufRead, Error, Write};
 
 /// Byte Size of a Single Chunk. Must be 0x1000 or 0x10_000 or 0x100_000...
-const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks
+const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks, roughly 4K Lines per file
 
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
@@ -44,9 +44,10 @@ fn main() -> Result<(), Error> {
     let mut last_chunk: Option<u64> = None;
     for line in buffered.lines() {
         linenum += 1;
-        if linenum > 15_000 { break; }
+        // if linenum > 15_000 { break; }
         let line = line?;
-        if first_chunk.is_some() { println!("{}", line); }
+        if line.contains("Contents of the .") { break; }
+        // if first_chunk.is_some() { println!("{}", line); }
 
         // `addr` becomes 0x80007028
         // `chunk` becomes 0, 1, 2, ...
@@ -56,10 +57,10 @@ fn main() -> Result<(), Error> {
                 let chunk = addr / CHUNK_SIZE;
                 if first_chunk.is_none() {
                     first_chunk = Some(chunk); 
-                    last_chunk = first_chunk;
+                    last_chunk = Some(0);
                 }
                 let chunk = chunk - first_chunk.unwrap();
-                println!("chunk={}, addr={:x}", chunk, addr);
+                // println!("chunk={}, addr={:x}", chunk, addr);
 
                 // Write the Chunk Buffer to the Chunk File
                 if chunk != last_chunk.unwrap() {
