@@ -47,13 +47,12 @@ fn main() -> Result<(), Error> {
 
     // Find lines that begin with `    80007028:`
     let re = regex::Regex::new("    ([0-9a-f]+):").unwrap();
-    let mut linenum = 0;
+    let mut _linenum = 0;
     let mut first_chunk: Option<u64> = None;
     let mut last_chunk: Option<u64> = None;
-    for line in buffered.lines() {
+    for (_linenum, line) in buffered.lines().enumerate() {
 
-        linenum += 1;
-        // if linenum > 15_000 { break; }
+        // if _linenum > 15_000 { break; }
         let line = line?;
         if line.contains("Contents of the .") { break; }
         // if first_chunk.is_some() { println!("{}", line); }
