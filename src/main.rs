@@ -24,8 +24,8 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
 
-/// Byte Size of a Single Chunk
-const CHUNK_SIZE: u64 = 10 * 1024;  // 41 Files of 10 KB Chunks
+/// Byte Size of a Single Chunk. Must be 0x1000 or 0x10_000 or 0x100_000...
+const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks
 
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
@@ -43,7 +43,7 @@ fn main() -> Result<(), Error> {
         linenum += 1;
         if linenum > 15_000 { break; }
         let line = line?;
-        println!("{}", line);
+        if first_chunk.is_some() { println!("{}", line); }
 
         // `addr` becomes 0x80007028
         // `chunk` becomes 0, 1, 2, ...
