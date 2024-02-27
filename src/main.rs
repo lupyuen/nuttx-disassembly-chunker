@@ -25,7 +25,7 @@ use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
 
 /// Byte Size of a Single Chunk
-const CHUNK_SIZE: usize = 10 * 1024;  // 41 Files of 10 KB Chunks
+const CHUNK_SIZE: u64 = 10 * 1024;  // 41 Files of 10 KB Chunks
 
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
@@ -37,19 +37,21 @@ fn main() -> Result<(), Error> {
     // Find lines that begin with `    80007028:`
     let re = regex::Regex::new("    ([0-9a-f]+):").unwrap();
     let mut linenum = 0;
+    let mut last_chunk: u64 = 0;
     for line in buffered.lines() {
         linenum += 1;
-        if linenum > 40_000 { break; }
+        if linenum > 15_000 { break; }
         let line = line?;
         println!("{}", line);
-
-        let chunk: usize = linenum / CHUNK_SIZE;
 
         // `addr` becomes `80007028`
         if let Some(cap) = re.captures_iter(&line).next() {
             if let Some(addr) = cap.get(1) {
-                let addr = addr.as_str();
-                println!("chunk={}, addr={}", chunk, addr);    
+                let addr = u64::from_str_radix(addr.as_str(), 16).unwrap();
+                let chunk = addr / CHUNK_SIZE;
+
+                println!("chunk={}, addr={:x}", chunk, addr);
+                last_chunk = chunk;
             }
         }    
     }
