@@ -27,6 +27,9 @@ use std::io::{BufReader, BufRead, Error, Write};
 /// Byte Size of a Single Chunk. Must be 0x1000 or 0x10_000 or 0x100_000...
 const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks, roughly 4K Lines per file
 
+/// Where the Disassembly Files are located
+const PATHNAME: &str = "/Users/Luppy/riscv/nuttx-tinyemu/docs/purescript";
+
 /// Split a NuttX Disassembly into Chunks for display by NuttX Log Parser in PureScript
 fn main() -> Result<(), Error> {
 
@@ -34,7 +37,8 @@ fn main() -> Result<(), Error> {
     let mut chunk_buf = String::new();
 
     // Open the NuttX Disassembly File
-    let input = File::open("/Users/Luppy/riscv/nuttx-tinyemu/docs/purescript/qjs.S")?;
+    let path = format!("{}/qjs.S", PATHNAME);
+    let input = File::open(path)?;
     let buffered = BufReader::new(input);
 
     // Find lines that begin with `    80007028:`
@@ -91,7 +95,7 @@ fn main() -> Result<(), Error> {
 /// Address 0x8000b000 goes into `qjs-chunk/qjs-8000b000.S`
 fn write_chunk_file(buf: &str, chunk: u64, first_chunk: u64) {
     let addr = (first_chunk + chunk + 1) * CHUNK_SIZE;
-    let path = format!("/tmp/qjs-chunk/qjs-{:0>8x}.S", addr);
+    let path = format!("{}/qjs-chunk/qjs-{:0>8x}.S", PATHNAME, addr);
     println!("write_chunk_file: chunk={}, path={}", chunk, path);
     let mut output = File::create(path).unwrap();
     write!(output, "{}", buf).unwrap();
