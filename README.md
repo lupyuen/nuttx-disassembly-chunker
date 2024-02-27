@@ -2,6 +2,16 @@
 
 See https://github.com/lupyuen/nuttx-purescript-parser
 
+For NuttX Log Parser to display the Disassembly for a given Address...
+
+- We split a huge NuttX Disassembly: [qjs.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs.S)
+
+- Into smaller Disassembly Chunk Files: [qjs-chunk/qjs-80001000.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk/qjs-80001000.S)
+
+- So that Disassembly Address 0x8000_0000 will be located in [qjs-80001000.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk/qjs-80001000.S)
+
+- And Disassembly Address 0x8000_1000 will be located in [qjs-80002000.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk/qjs-80002000.S), ...
+
 To chunk a NuttX Disassembly from [qjs.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs.S) to [qjs.S chunks](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk)...
 
 ```bash
