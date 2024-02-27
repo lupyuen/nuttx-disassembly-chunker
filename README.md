@@ -2,7 +2,7 @@
 
 See https://github.com/lupyuen/nuttx-purescript-parser
 
-To chunk a NuttX Disassembly...
+To chunk a NuttX Disassembly from [qjs.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs.S) to [qjs.S chunks](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk)...
 
 ```bash
 ## Chunk NuttX Disassembly $HOME/qjs.S into
