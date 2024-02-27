@@ -82,7 +82,10 @@ fn main() -> Result<(), Error> {
 
         // Append the line to the Chunk Buffer
         if first_chunk.is_some() {
-            let line = line.replace("/Users/Luppy/riscv/", "");
+            let line = line
+                .replace("/Users/Luppy/riscv/", "")
+                .replace("/Users/Luppy/ox64/", "")
+                ;
             chunk_buf += &(line + "\n");
         }
     }
