@@ -32,6 +32,7 @@ To create the NuttX Disassembly...
 ```bash
 ## Dump Disassembly of `qjs` to `qjs.S`
 ## For NuttX Kernel, change `qjs` to `nuttx`
+
 riscv64-unknown-elf-objdump \
   --syms --source --reloc --demangle --line-numbers --wide \
   --debugging \
