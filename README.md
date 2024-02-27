@@ -51,3 +51,5 @@ void _start(int argc, char *argv[])
 {
     80007028:	1141                	addi	sp,sp,-16
 ```
+
+Which will be chunked into [qjs-chunk/qjs-80008000.S](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/purescript/qjs-chunk/qjs-80008000.S)
