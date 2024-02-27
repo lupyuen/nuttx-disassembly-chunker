@@ -37,21 +37,25 @@ fn main() -> Result<(), Error> {
     // Find lines that begin with `    80007028:`
     let re = regex::Regex::new("    ([0-9a-f]+):").unwrap();
     let mut linenum = 0;
-    let mut last_chunk: u64 = 0;
+    let mut first_chunk: Option<u64> = None;
+    let mut last_chunk: Option<u64> = None;
     for line in buffered.lines() {
         linenum += 1;
         if linenum > 15_000 { break; }
         let line = line?;
         println!("{}", line);
 
-        // `addr` becomes `80007028`
+        // `addr` becomes 0x80007028
+        // `chunk` becomes 0, 1, 2, ...
         if let Some(cap) = re.captures_iter(&line).next() {
             if let Some(addr) = cap.get(1) {
                 let addr = u64::from_str_radix(addr.as_str(), 16).unwrap();
                 let chunk = addr / CHUNK_SIZE;
+                if first_chunk.is_none() { first_chunk = Some(chunk); }
+                let chunk = chunk - first_chunk.unwrap();
 
                 println!("chunk={}, addr={:x}", chunk, addr);
-                last_chunk = chunk;
+                last_chunk = Some(chunk);
             }
         }    
     }
