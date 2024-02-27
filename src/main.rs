@@ -22,7 +22,7 @@
 //     80007028:	1141                	addi	sp,sp,-16
 
 use std::fs::File;
-use std::io::{BufReader, BufRead, Error};
+use std::io::{BufReader, BufRead, Error, Write};
 
 /// Byte Size of a Single Chunk. Must be 0x1000 or 0x10_000 or 0x100_000...
 const CHUNK_SIZE: u64 = 0x1000;  // 101 Files of 4 KB Chunks
@@ -63,8 +63,7 @@ fn main() -> Result<(), Error> {
 
                 // Write the Chunk Buffer to the Chunk File
                 if chunk != last_chunk.unwrap() {
-                    // TODO
-                    println!("last_chunk={}, chunk_buf={}", last_chunk.unwrap(), chunk_buf);
+                    write_chunk_file(&chunk_buf, last_chunk.unwrap(), first_chunk.unwrap());
                     chunk_buf.clear();
                 }
                 last_chunk = Some(chunk);
@@ -73,9 +72,26 @@ fn main() -> Result<(), Error> {
 
         // Append the line to the Chunk Buffer
         if first_chunk.is_some() {
+            let line = line.replace("/Users/Luppy/riscv/", "");
             chunk_buf += &(line + "\n");
         }
     }
 
+    // Write the final Chunk Buffer to the Chunk File
+    if let Some(chunk) = last_chunk {
+        write_chunk_file(&chunk_buf, chunk, first_chunk.unwrap());
+        chunk_buf.clear();
+    }
+
     Ok(())
+}
+
+/// Write a Disassembly Chunk to a Chunk File.
+/// Address 0x8000b000 goes into `qjs-chunk/qjs-8000b000.S`
+fn write_chunk_file(buf: &str, chunk: u64, first_chunk: u64) {
+    let addr = (first_chunk + chunk + 1) * CHUNK_SIZE;
+    let path = format!("/tmp/qjs-chunk/qjs-{:0>8x}.S", addr);
+    println!("write_chunk_file: chunk={}, path={}", chunk, path);
+    let mut output = File::create(path).unwrap();
+    write!(output, "{}", buf).unwrap();
 }
